@@ -1,0 +1,26 @@
+{
+  "name": "s63_excuse_maker_3000",
+  "version": "1.0.0",
+  "description": "The Excuse Maker 3000 is a fun and creative tool designed to help users generate plausible, humorous, or outlandish excuses for any situation. Whether you need a reason to skip a meeting, explain tardiness, or simply make someone laugh, this app has got you covered!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kalviumcommunity/s63_excuse_maker_3000.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kalviumcommunity/s63_excuse_maker_3000/issues"
+  },
+  "homepage": "https://github.com/kalviumcommunity/s63_excuse_maker_3000#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.5",
+    "nodemon": "^3.1.9"
+  }
+}
