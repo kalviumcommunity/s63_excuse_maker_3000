@@ -2,7 +2,7 @@
   "name": "s63_excuse_maker_3000",
   "version": "1.0.0",
   "description": "The Excuse Maker 3000 is a fun and creative tool designed to help users generate plausible, humorous, or outlandish excuses for any situation. Whether you need a reason to skip a meeting, explain tardiness, or simply make someone laugh, this app has got you covered!",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
