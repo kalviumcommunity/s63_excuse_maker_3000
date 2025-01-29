@@ -1,8 +1,8 @@
 const express = require('express');
 const app = express();
 
-app.get('/excuse', (req, res) => {
-    res.send('here is your excuse');
+app.get('/ping', (req, res) => {
+    res.send('pong');
     });
 
  //Defines a route for HTTP GET requests to the path /ping.
