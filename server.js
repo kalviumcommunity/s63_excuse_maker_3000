@@ -1,15 +1,18 @@
-const express = require('express');
+require("dotenv").config();
+const express = require("express");
+const cors = require("cors");
+const connectDB = require("./connectDB"); // Import connectDB
+
 const app = express();
+app.use(express.json());
+app.use(cors());
 
-app.get('/ping', (req, res) => {
-    res.send('pong');
-    });
+// Connect to MongoDB Atlas
+connectDB();
 
- //Defines a route for HTTP GET requests to the path /ping.
-//When a client sends a GET request to /ping, the server responds with the text "pong".
+app.get("/", (req, res) => {
+  res.send("Welcome to the Excuse Maker 3000");
+});
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000');
-    });
-//Starts the server and listens for incoming connections on port 3000.
-//Logs a message to the console indicating that the server is running.
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
