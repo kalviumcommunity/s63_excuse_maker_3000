@@ -1,0 +1,20 @@
+meta {
+  name: create post
+  type: http
+  seq: 2
+}
+
+post {
+  url: http://localhost:4000/api/logs
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+      "category": "Error",
+      "text": "Database connection failed",
+      "popularity": 10,
+      "createdAt": "2025-02-10T12:00:00Z"
+    }
+}
