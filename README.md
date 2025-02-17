@@ -17,3 +17,8 @@ The Excuse Maker 3000 is a fun and creative tool designed to help users generate
 - **Database**: MongoDB for storing user preferences and custom templates.
 - **Authentication**: Firebase or Auth0 for user login and account management.
 - **Deployment**: Hosted on Vercel or Heroku.
+
+
+FrontEnd : Deployment Link: 
+
+https://67b2c0367be2aaf8f3c2f5ba--playful-smakager-72dac4.netlify.app/
