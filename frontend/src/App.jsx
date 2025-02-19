@@ -1,14 +1,22 @@
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
+import React from 'react';
+import ExcuseMaker from './components/ExcuseMaker';
 
-function App() {
+const App = () => {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-      </Routes>
-    </Router>
+    <div style={styles.appContainer}>
+      <ExcuseMaker />
+    </div>
   );
-}
+};
+
+const styles = {
+  appContainer: {
+    maxWidth: '600px',
+    margin: '0 auto',
+    padding: '20px',
+    textAlign: 'center',
+    fontFamily: 'Arial, sans-serif',
+  },
+};
 
 export default App;
