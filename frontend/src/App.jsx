@@ -1,22 +1,19 @@
+// src/App.js
 import React from 'react';
-import ExcuseMaker from './components/ExcuseMaker';
+import Excuse from './components/Excuse'; // Import the Excuse component
 
-const App = () => {
+function App() {
+  const dummyExcuse = {
+    category: "Work",
+    text: "Sorry I'm late, my cat decided my laptop charger was a chew toy and I had to deal with that."
+  };
+
   return (
-    <div style={styles.appContainer}>
-      <ExcuseMaker />
+    <div className="App">
+      <h1>Excuse Maker 3000</h1>
+      <Excuse category={dummyExcuse.category} text={dummyExcuse.text} />
     </div>
   );
-};
-
-const styles = {
-  appContainer: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    padding: '20px',
-    textAlign: 'center',
-    fontFamily: 'Arial, sans-serif',
-  },
-};
+}
 
 export default App;
