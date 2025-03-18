@@ -1,9 +1,13 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
+const routes = require('./routes');
 
 const app = express();
 const port = process.env.PORT || 3000;
+
+// Middleware
+app.use(express.json());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -13,11 +17,8 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
-// Define a simple route for home with DB status
-app.get('/', (req, res) => {
-    const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Not Connected";
-    res.json({ message: "Welcome to Excuse Maker 3000", dbStatus });
-});
+// Use Routes
+app.use('/api', routes);
 
 // Start the server
 app.listen(port, () => {
