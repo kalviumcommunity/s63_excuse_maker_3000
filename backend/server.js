@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); // Allow frontend requests
+app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
@@ -32,6 +32,18 @@ app.get('/api/excuses', async (req, res) => {
     try {
         const excuses = await Excuse.find();
         res.json(excuses);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API Route to Add a New Excuse
+app.post('/api/excuses', async (req, res) => {
+    try {
+        const { text, category } = req.body;
+        const newExcuse = new Excuse({ text, category });
+        await newExcuse.save();
+        res.status(201).json(newExcuse);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
