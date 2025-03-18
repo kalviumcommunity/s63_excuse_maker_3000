@@ -49,6 +49,31 @@ app.post('/api/excuses', async (req, res) => {
     }
 });
 
+// API Route to Update an Excuse
+app.put('/api/excuses/:id', async (req, res) => {
+    try {
+        const { text, category } = req.body;
+        const updatedExcuse = await Excuse.findByIdAndUpdate(
+            req.params.id,
+            { text, category },
+            { new: true }
+        );
+        res.json(updatedExcuse);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API Route to Delete an Excuse
+app.delete('/api/excuses/:id', async (req, res) => {
+    try {
+        await Excuse.findByIdAndDelete(req.params.id);
+        res.json({ message: "Excuse deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
