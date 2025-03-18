@@ -1,11 +1,11 @@
-// src/components/Excuse.js
+// src/Excuse.js
 import React from 'react';
 
-function Excuse({ category, text }) {
+function Excuse(props) {
   return (
-    <div className="excuse-container">
-      <h3>Category: {category}</h3>
-      <p>Excuse: {text}</p>
+    <div className="excuse-card">
+      <h3>Category: {props.category}</h3>
+      <p>Excuse: {props.text}</p>
     </div>
   );
 }

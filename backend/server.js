@@ -1,22 +1,25 @@
-require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./connectDB"); // Import connectDB
-const logsRoutes = require('./routes.js')
+require('dotenv').config();
+const express = require('express');
+const mongoose = require('mongoose');
 
 const app = express();
-app.use(express.json());
-app.use(cors());
+const port = process.env.PORT || 3000;
 
-// Connect to MongoDB Atlas
-connectDB();
+// Connect to MongoDB
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+.then(() => console.log('Connected to MongoDB'))
+.catch(err => console.error('MongoDB connection error:', err));
 
-app.get("/", (req, res) => {
-    res.send("Welcome to the Excuse Maker 3000");
-  });
+// Define a simple route for home with DB status
+app.get('/', (req, res) => {
+    const dbStatus = mongoose.connection.readyState === 1 ? "Connected" : "Not Connected";
+    res.json({ message: "Welcome to Excuse Maker 3000", dbStatus });
+});
 
-
-  app.use("/api", postRoutes); // All routes are prefixed with /api
-
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// Start the server
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
