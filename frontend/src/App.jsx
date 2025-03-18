@@ -6,16 +6,18 @@ import ExcuseCard from "./components/ExcuseCard";
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 text-white">
-        <nav className="mb-6">
-          <Link to="/" className="mr-4 text-lg underline">Home</Link>
-          <Link to="/add-excuse" className="mr-4 text-lg underline">Add Excuse</Link>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-primary to-secondary text-white">
+        <nav className="flex space-x-6 bg-white shadow-md p-4 rounded-lg text-primary">
+          <Link to="/" className="font-semibold hover:text-secondary transition">Home</Link>
+          <Link to="/add-excuse" className="font-semibold hover:text-secondary transition">Add Excuse</Link>
         </nav>
-        <Routes>
-          <Route path="/" element={<ExcuseCard />} />
-          <Route path="/add-excuse" element={<AddExcuse />} />
-          <Route path="/update-excuse/:id" element={<UpdateExcuse />} />
-        </Routes>
+        <div className="mt-6 w-full max-w-4xl">
+          <Routes>
+            <Route path="/" element={<ExcuseCard />} />
+            <Route path="/add-excuse" element={<AddExcuse />} />
+            <Route path="/update-excuse/:id" element={<UpdateExcuse />} />
+          </Routes>
+        </div>
       </div>
     </Router>
   );
