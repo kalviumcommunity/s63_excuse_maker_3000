@@ -19,13 +19,20 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('Connected to MongoDB'))
 .catch(err => console.error('MongoDB connection error:', err));
 
+// Define User Schema (For Demo Purposes)
+const userSchema = new mongoose.Schema({
+    name: String,
+    email: String
+});
+const User = mongoose.model('User', userSchema);
+
 // Define Excuse Schema
 const excuseSchema = new mongoose.Schema({
     text: String,
     category: String,
+    created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     createdAt: { type: Date, default: Date.now }
 });
-
 const Excuse = mongoose.model('Excuse', excuseSchema);
 
 // 🔹 Middleware to handle validation errors
@@ -37,82 +44,40 @@ const validateRequest = (req, res, next) => {
     next();
 };
 
-// ✅ API Route to Fetch All Excuses
-app.get('/api/excuses', async (req, res) => {
+// ✅ API to Fetch All Users
+app.get('/api/users', async (req, res) => {
     try {
-        const excuses = await Excuse.find();
+        const users = await User.find();
+        res.json(users);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ✅ API to Fetch Excuses by User
+app.get('/api/excuses/by-user/:userId', async (req, res) => {
+    try {
+        const excuses = await Excuse.find({ created_by: req.params.userId }).populate('created_by', 'name');
         res.json(excuses);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-// ✅ API Route to Fetch a Single Excuse by ID (with Validation)
-app.get('/api/excuses/:id', 
-    param('id').isMongoId().withMessage('Invalid excuse ID format'),
-    validateRequest,
-    async (req, res) => {
-        try {
-            const excuse = await Excuse.findById(req.params.id);
-            if (!excuse) return res.status(404).json({ message: "Excuse not found" });
-            res.json(excuse);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-});
-
-// ✅ API Route to Add a New Excuse (with Validation)
+// ✅ API to Create an Excuse with `created_by`
 app.post('/api/excuses',
     [
-        body('text').notEmpty().withMessage('Text is required').isLength({ min: 5 }).withMessage('Text must be at least 5 characters long'),
-        body('category').notEmpty().withMessage('Category is required').isAlpha().withMessage('Category must contain only letters')
+        body('text').notEmpty().withMessage('Text is required'),
+        body('category').notEmpty().withMessage('Category is required'),
+        body('created_by').notEmpty().withMessage('Created_by (User ID) is required')
     ],
     validateRequest,
     async (req, res) => {
         try {
-            const { text, category } = req.body;
-            const newExcuse = new Excuse({ text, category });
+            const { text, category, created_by } = req.body;
+            const newExcuse = new Excuse({ text, category, created_by });
             await newExcuse.save();
             res.status(201).json(newExcuse);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-);
-
-// ✅ API Route to Update an Excuse (with Validation)
-app.put('/api/excuses/:id',
-    [
-        param('id').isMongoId().withMessage('Invalid excuse ID format'),
-        body('text').optional().isLength({ min: 5 }).withMessage('Text must be at least 5 characters long'),
-        body('category').optional().isAlpha().withMessage('Category must contain only letters')
-    ],
-    validateRequest,
-    async (req, res) => {
-        try {
-            const { text, category } = req.body;
-            const updatedExcuse = await Excuse.findByIdAndUpdate(
-                req.params.id,
-                { text, category },
-                { new: true }
-            );
-            if (!updatedExcuse) return res.status(404).json({ message: "Excuse not found" });
-            res.json(updatedExcuse);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    }
-);
-
-// ✅ API Route to Delete an Excuse (with Validation)
-app.delete('/api/excuses/:id',
-    param('id').isMongoId().withMessage('Invalid excuse ID format'),
-    validateRequest,
-    async (req, res) => {
-        try {
-            const deletedExcuse = await Excuse.findByIdAndDelete(req.params.id);
-            if (!deletedExcuse) return res.status(404).json({ message: "Excuse not found" });
-            res.json({ message: "Excuse deleted successfully" });
         } catch (error) {
             res.status(500).json({ error: error.message });
         }
