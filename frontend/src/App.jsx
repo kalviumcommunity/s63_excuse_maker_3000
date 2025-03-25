@@ -6,18 +6,29 @@ import ExcuseCard from "./components/ExcuseCard";
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-r from-primary to-secondary text-white">
-        <nav className="flex space-x-6 bg-white shadow-md p-4 rounded-lg text-primary">
-          <Link to="/" className="font-semibold hover:text-secondary transition">Home</Link>
-          <Link to="/add-excuse" className="font-semibold hover:text-secondary transition">Add Excuse</Link>
-        </nav>
-        <div className="mt-6 w-full max-w-4xl">
+      <div className="min-h-screen flex flex-col items-center bg-gradient-to-r from-indigo-600 to-cyan-500 text-white p-6">
+        <header className="w-full max-w-4xl mb-8">
+          <h1 className="text-4xl font-bold text-center mb-8 animate-fade-in">
+            Excuse Maker <span className="text-orange-400">3000</span>
+          </h1>
+          
+          <nav className="glass-effect flex justify-center space-x-6 p-4 rounded-xl">
+            <Link to="/" className="nav-link">Home</Link>
+            <Link to="/add-excuse" className="nav-link">Add Excuse</Link>
+          </nav>
+        </header>
+        
+        <main className="w-full max-w-4xl flex-grow animate-fade-in">
           <Routes>
             <Route path="/" element={<ExcuseCard />} />
             <Route path="/add-excuse" element={<AddExcuse />} />
             <Route path="/update-excuse/:id" element={<UpdateExcuse />} />
           </Routes>
-        </div>
+        </main>
+        
+        <footer className="mt-12 text-center text-sm opacity-80 w-full">
+          <p>© {new Date().getFullYear()} Excuse Maker 3000. All excuses guaranteed to be somewhat believable.</p>
+        </footer>
       </div>
     </Router>
   );
