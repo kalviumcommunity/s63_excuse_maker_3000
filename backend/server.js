@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const { body, validationResult, param } = require('express-validator');
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
@@ -10,7 +11,8 @@ const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
 
 // Connect to SQLite database
 const sequelize = new Sequelize({
@@ -193,6 +195,53 @@ app.post('/api/excuses',
     }
   }
 );
+
+// ✅ API for Authentication
+
+// Login endpoint
+app.post('/api/auth/login',
+  [
+    body('email').isEmail().withMessage('Valid email is required')
+  ],
+  validateRequest,
+  async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      // Find user by email
+      const user = await User.findOne({ where: { email } });
+      
+      if (!user) {
+        return res.status(401).json({ message: 'Authentication failed. User not found.' });
+      }
+      
+      // Set cookie with username
+      res.cookie('username', user.name, { 
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        sameSite: 'strict'
+      });
+      
+      res.json({ 
+        message: 'Login successful',
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+// Logout endpoint
+app.post('/api/auth/logout', (req, res) => {
+  // Clear the cookie
+  res.clearCookie('username');
+  res.json({ message: 'Logout successful' });
+});
 
 // Start the server
 app.listen(port, () => {

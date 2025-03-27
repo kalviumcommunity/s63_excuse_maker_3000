@@ -109,7 +109,7 @@ const ExcuseCard = () => {
             )}
           </div>
           
-          <p className="text-gray-700 text-xl font-medium mt-4 mb-6">"{currentExcuse.text}"</p>
+          <p className="text-gray-900 text-xl font-medium mt-4 mb-6">"{currentExcuse.text}"</p>
           
           <div className="text-sm text-gray-500 mb-6">
             Created: {new Date(currentExcuse.createdAt).toLocaleDateString()}
