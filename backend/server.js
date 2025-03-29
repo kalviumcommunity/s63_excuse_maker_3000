@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const { body, validationResult, param } = require('express-validator');
 const { Sequelize, DataTypes } = require('sequelize');
 const path = require('path');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,6 +37,10 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING,
     allowNull: false,
     unique: true
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: true // Making it nullable for existing users
   }
 });
 
@@ -64,6 +69,23 @@ const validateRequest = (req, res, next) => {
   next();
 };
 
+// 🔹 JWT Authentication Middleware
+const authenticateJWT = (req, res, next) => {
+  const token = req.cookies.jwt;
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication required' });
+  }
+  
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = user;
+    next();
+  } catch (error) {
+    return res.status(403).json({ message: 'Invalid or expired token' });
+  }
+};
+
 // Sync models with database and seed data
 const initializeDatabase = async () => {
   try {
@@ -73,9 +95,9 @@ const initializeDatabase = async () => {
 
     // Seed Users
     const users = await User.bulkCreate([
-      { name: 'John Doe', email: 'john@example.com' },
-      { name: 'Jane Smith', email: 'jane@example.com' },
-      { name: 'Bob Johnson', email: 'bob@example.com' }
+      { name: 'John Doe', email: 'john@example.com', password: 'password123' },
+      { name: 'Jane Smith', email: 'jane@example.com', password: 'password123' },
+      { name: 'Bob Johnson', email: 'bob@example.com', password: 'password123' }
     ]);
     console.log('Users seeded successfully');
 
@@ -198,15 +220,66 @@ app.post('/api/excuses',
 
 // ✅ API for Authentication
 
-// Login endpoint
-app.post('/api/auth/login',
+// Register endpoint
+app.post('/api/auth/register',
   [
-    body('email').isEmail().withMessage('Valid email is required')
+    body('name').notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')
   ],
   validateRequest,
   async (req, res) => {
     try {
-      const { email } = req.body;
+      const { name, email, password } = req.body;
+      
+      // Check if user already exists
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ message: 'User with this email already exists' });
+      }
+      
+      // Create new user
+      const newUser = await User.create({ name, email, password });
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: newUser.id, name: newUser.name, email: newUser.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+      
+      // Set JWT in cookie
+      res.cookie('jwt', token, { 
+        httpOnly: true,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production'
+      });
+      
+      res.status(201).json({ 
+        message: 'User registered successfully',
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
+// Login endpoint
+app.post('/api/auth/login',
+  [
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').notEmpty().withMessage('Password is required')
+  ],
+  validateRequest,
+  async (req, res) => {
+    try {
+      const { email, password } = req.body;
       
       // Find user by email
       const user = await User.findOne({ where: { email } });
@@ -215,11 +288,24 @@ app.post('/api/auth/login',
         return res.status(401).json({ message: 'Authentication failed. User not found.' });
       }
       
-      // Set cookie with username
-      res.cookie('username', user.name, { 
+      // Verify password (in a real app, you would hash passwords)
+      if (user.password !== password) {
+        return res.status(401).json({ message: 'Authentication failed. Invalid password.' });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { id: user.id, name: user.name, email: user.email },
+        process.env.JWT_SECRET,
+        { expiresIn: '1d' }
+      );
+      
+      // Set JWT in cookie
+      res.cookie('jwt', token, { 
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000, // 1 day
-        sameSite: 'strict'
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production'
       });
       
       res.json({ 
@@ -236,10 +322,32 @@ app.post('/api/auth/login',
   }
 );
 
+// Get current user endpoint
+app.get('/api/auth/me', authenticateJWT, async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['id', 'name', 'email']
+    });
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Logout endpoint
 app.post('/api/auth/logout', (req, res) => {
-  // Clear the cookie
-  res.clearCookie('username');
+  // Clear the JWT cookie with the same options as when setting it
+  res.clearCookie('jwt', { 
+    httpOnly: true,
+    sameSite: 'strict',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/'
+  });
   res.json({ message: 'Logout successful' });
 });
 
